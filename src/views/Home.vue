@@ -8,17 +8,11 @@
 import StepView from "../components/StepView";
 
 export default {
-  props: {
-    source: String,
-  },
   components: {
-    StepView,
+    StepView
   },
-  data: () => ({
-    drawer: null,
-  }),
   created() {
     this.$vuetify.theme.dark = true;
-  },
+  }
 };
 </script>

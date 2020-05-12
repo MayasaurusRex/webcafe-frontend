@@ -16,10 +16,7 @@
 import LoginCard from "../components/LoginCard";
 export default {
   components: {
-    LoginCard,
-  },
-  props: {
-    source: String,
-  },
+    LoginCard
+  }
 };
 </script>
