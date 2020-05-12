@@ -10,17 +10,11 @@ const routes = [
     path: "/",
     name: "Login",
     component: Login,
-    props: {
-      showScafffold: false,
-    },
   },
   {
     path: "/home",
     name: "Home",
     component: Home,
-    props: {
-      showScafffold: true,
-    },
   },
 ];
 
