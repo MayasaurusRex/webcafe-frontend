@@ -1,18 +1,24 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <v-container class="pa-3 ma-3">
+    <StepView />
+  </v-container>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import StepView from "../components/StepView";
 
 export default {
-  name: 'Home',
+  props: {
+    source: String,
+  },
   components: {
-    HelloWorld
-  }
-}
+    StepView,
+  },
+  data: () => ({
+    drawer: null,
+  }),
+  created() {
+    this.$vuetify.theme.dark = true;
+  },
+};
 </script>

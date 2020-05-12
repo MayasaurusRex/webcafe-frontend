@@ -1,32 +1,75 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+  <v-app id="inspire">
+    <v-navigation-drawer
+      v-if="this.$route.name != 'Login'"
+      v-model="drawer"
+      app
+      clipped
+    >
+      <v-list dense>
+        <v-list-item
+          link
+          v-for="link in links"
+          :key="link.text"
+          router
+          :to="link.route"
+        >
+          <v-list-item-action>
+            <v-icon class="white--text">
+              {{ link.icon }}
+            </v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>{{ link.text }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-app-bar
+      v-if="this.$route.name != 'Login'"
+      app
+      clipped-left
+      clipped-right
+    >
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-toolbar-title>
+        <span>LEVEE</span>
+        <span class="font-weight-light"> Industries</span>
+      </v-toolbar-title>
+    </v-app-bar>
+
+    <v-content>
+      <router-view></router-view>
+    </v-content>
+
+    <v-footer app>
+      <span class="text--darken-2 grey--text"
+        >&copy; Levee Industries LLC. 2020</span
+      >
+    </v-footer>
+  </v-app>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+// import Login from "@/components/Login";
 
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+export default {
+  // components: {
+  //   Login,
+  // },
+  props: {
+    source: String,
+  },
+  data: () => ({
+    drawer: null,
+    links: [
+      { icon: "home", text: "Home", route: "/home" },
+      { icon: "exit_to_app", text: "Sign Out", route: "/" },
+    ],
+  }),
+  created() {
+    this.$vuetify.theme.dark = true;
+  },
+};
+</script>
