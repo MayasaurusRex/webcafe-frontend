@@ -1,6 +1,7 @@
 <template>
   <v-app id="inspire">
     <v-navigation-drawer
+    color="blue-grey darken-1"
       v-if="this.$route.name != 'Login'"
       v-model="drawer"
       app
@@ -27,25 +28,26 @@
     </v-navigation-drawer>
 
     <v-app-bar
+      color="blue-grey lighten-1"
       v-if="this.$route.name != 'Login'"
       app
       clipped-left
       clipped-right
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon> 
       <v-toolbar-title>
-        <span>LEVEE</span>
-        <span class="font-weight-light"> Industries</span>
+        <span>Cafe</span>
+        <span class="font-weight-light"> Googoo</span>
       </v-toolbar-title>
     </v-app-bar>
 
     <v-content>
-      <router-view></router-view>
+      <router-view> </router-view>
     </v-content>
 
-    <v-footer app>
-      <span class="text--darken-2 grey--text"
-        >&copy; Levee Industries LLC. 2020</span
+    <v-footer app color="blue-grey darken-3">
+      <span class="text--darken-2 white--text"
+        >&copy; Cafe Googoo 2020</span
       >
     </v-footer>
   </v-app>
@@ -64,8 +66,12 @@ export default {
   data: () => ({
     drawer: null,
     links: [
-      { icon: "home", text: "Home", route: "/home" },
-      { icon: "exit_to_app", text: "Sign Out", route: "/" },
+      { icon: "home", text: "Cafe Googoo", route: "/home" },
+      //{ icon: "mdi-account", text: "Sign Up", route: "/signup" },
+      //{ icon: "mdi-login", text: "Log In", route: "/login" },
+      { icon: "mdi-food-fork-drink", text: "Menu", route: "/menu" },
+      { icon: "mdi-book-open", text: "Order", route: "/order" },
+      { icon: "mdi-card-account-mail", text: "Contact Googoo", route: "/contact" },
     ],
   }),
   created() {
