@@ -1,4 +1,4 @@
-# ccafegoogoo
+# cafegoogoo
 
 ## Project setup
 ```
