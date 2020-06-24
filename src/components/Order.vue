@@ -1,79 +1,3 @@
-<!-- <template>
-  <div>
-    <v-data-table
-      v-model="selected"
-      :headers="headers"
-      :items="items"
-      :single-select="singleSelect"
-      item-key="name"
-      show-select
-      show-expand
-      class="elevation-1"
-    >
-      <template v-slot:expanded-item="{ item }">
-        <tr v-for="op in ops" :key="op.id">
-          <div v-if="op.menuid == item.id">
-              <v-sheet class="mx-auto" max-width="700" v-if="op.price == 0">
-                <v-slide-group multiple show-arrows>
-                  <v-slide-item
-                    v-slot:default="{ active, toggle }"
-                  >
-                    <v-btn
-                      class="mx-2"
-                      :input-value="active"
-                      active-class="purple white--text"
-                      depressed
-                      rounded
-                      @click="toggle"
-                    >
-                      Includes {{ op.name }}
-                    </v-btn>
-                  </v-slide-item>
-                </v-slide-group>
-              </v-sheet>
-              <v-sheet class="mx-auto" max-width="700" v-else>
-                <v-slide-group multiple show-arrows>
-                  <v-slide-item
-                    v-slot:default="{ active, toggle }"
-                  >
-                    <v-btn
-                      class="mx-2"
-                      :input-value="active"
-                      active-class="purple white--text"
-                      depressed
-                      rounded
-                      @click="toggle"
-                    >
-                      {{ op.name }} for ${{ op.price }}
-                    </v-btn>
-                  </v-slide-item>
-                </v-slide-group>
-              </v-sheet>
-          </div>
-        </tr>
-      </template>
-    </v-data-table>
-    <p>{{ selected }}</p>
-  </div>
-</template>
-
-<script> -->
-/*export default { data() { return { singleSelect: false, dialog: false,
-selected: [], headers: [ { text: "Name", align: "start", sortable: true, value:
-"name", }, { text: "Price", value: "price" }, ], items: [], ops: [], editedItem:
-{ name: "", price: "", }, }; }, mounted() { this.show(); }, methods: { show() {
-//DISPLAY ITEMS const urlall = "http://localhost:8080/menu/all"; fetch(urlall,
-{}) .then((response) => response.json()) .then((data) => (this.items = data))
-.then((response) => { console.log(response); this.showop(); }) .catch((err) =>
-console.log(err)); }, showop() { //DISPLAY CUST const urlall =
-"http://localhost:8080/option/all"; fetch(urlall, { //headers: { //}, })
-.then((response) => response.json()) .then((data) => (this.ops = data))
-.catch((err) => console.log(err)); //router.push("login"); }, close() {
-this.dialog = false; this.$nextTick(() => { this.editedItem = Object.assign({},
-this.defaultItem); this.editedIndex = -1; }); }, save() { if (this.editedIndex >
--1) { this.update(this.editedItem); } else { this.submit(); } }, }, }; */
-<!-- </script> -->
-
 <template>
   <div>
     <h1 class="center" v-if="anon" >You must sign in or sign up to place an order! </h1>
@@ -117,7 +41,7 @@ this.defaultItem); this.editedIndex = -1; }); }, save() { if (this.editedIndex >
             </template>
           </v-card>
 
-          <v-btn color="primary" @click="optionNames">
+          <v-btn :disabled="selectedItem.length<=0" color="primary" @click="optionNames">
             Continue
           </v-btn>
         </v-stepper-content>
@@ -357,7 +281,8 @@ export default {
     },
 
     //Gets the name of the options for the selected item
-    optionNames() {
+    optionNames: function() { 
+      console.log("Num items selected: ", this.selectedItem.length)
       this.selectedItem.forEach((item) => {
         this.ops.forEach((op) => {
           if (op.menuid == item.id) {
@@ -366,10 +291,11 @@ export default {
           }
         });
       });
+     
       this.e1 = 2;
       return this.options;
     },
-   
+    
       //Increases the quantity, adjusts price accoringly
     incQ(){
       this.quantity++;
