@@ -1,4 +1,4 @@
-# cafegoogoo
+# webcafe-frontend
 
 ## Project setup
 ```
