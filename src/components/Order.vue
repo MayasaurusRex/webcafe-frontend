@@ -165,7 +165,7 @@
                               <pre> {{item.quant}}: &emsp;  {{item.name}} &#9; ${{item.price}}</pre>
                            </v-col>
                            <v-col>
-                             <v-btn @click="logIt(i)" >
+                             <v-btn @click="deleteFromCart(i)" >
                               <v-icon color="red" >mdi-delete</v-icon>
                              </v-btn>
                            </v-col>
@@ -208,10 +208,15 @@
 </template>
 
 <script>
+
 export default {
+  
+  //when page is loaded, role is designated
   created() {
     this.anon = this.$store.state.role == "anon";
   },
+  
+  //data to be returned/used
   data() {
     return {
       anon: '',
@@ -239,43 +244,25 @@ export default {
       cart: [],
       cartItems: [],
       cartOptions: [],
-      order: []
+      order: [],
     };
   },
 
+  //when view is loaded, calls methods
   mounted() {
-    this.show();
+    this.loadMenuItems();
   },
 
   methods: {
+    
     //Get items to display
-    show() {
-      // //DISPLAY ITEMS
-      // const urlall = "http://localhost:8080/menu/all";
-      // fetch(urlall, {})
-      //   .then((response) => response.json())
-      //   .then((data) => (this.items = data))
-      //   .then((response) => {
-      //     console.log(response);
-      //     this.showop();
-      //   })
-      //   .catch((err) => console.log(err));
+    loadMenuItems() {
       this.items = this.$store.state.items
-      this.showop()
+      this.loadMenuOptions()
     },
 
     //Gets options to display
-    showop() {
-      // //DISPLAY CUST
-      // const urlall = "http://localhost:8080/option/all";
-      // fetch(urlall, {
-      //   //headers: {
-      //   //},
-      // })
-      //   .then((response) => response.json())
-      //   .then((data) => (this.ops = data))
-      //   .catch((err) => console.log(err));
-      //router.push("login");
+    loadMenuOptions() {
       this.ops = this.$store.state.ops
       console.log("ops: ",this.ops)
     },
@@ -283,6 +270,7 @@ export default {
     //Gets the name of the options for the selected item
     optionNames: function() { 
       console.log("Num items selected: ", this.selectedItem.length)
+      //double for-each loop to compare ids that determine which options correspond to the item selected
       this.selectedItem.forEach((item) => {
         this.ops.forEach((op) => {
           if (op.menuid == item.id) {
@@ -291,18 +279,18 @@ export default {
           }
         });
       });
-     
+     //next page
       this.e1 = 2;
       return this.options;
     },
     
-      //Increases the quantity, adjusts price accoringly
+    //Increases the quantity, adjusts price accoringly
     incQ(){
       this.quantity++;
       this.entreeTotal = (this.quantity*this.entree).toFixed(2)
     },
 
-      //Decreases the quantity, adjusts price accoringly
+    //Decreases the quantity, adjusts price accoringly
     decQ(){
       this.quantity--;
       if(this.quantity < 0){
@@ -311,13 +299,15 @@ export default {
       this.entreeTotal = (this.quantity*this.entree).toFixed(2)
     },
 
-      //Gets the price of the entree the user has selected
+    //Gets the price of the entree the user has selected
     getEntreePrice(){
       this.quantity = 1
       this.entree = 0
+      //adds the item price to the entree price
       this.selectedItem.forEach((item) => {
         this.entree += parseFloat(item.price)
       });
+      //adds the option price to the entree price
       this.selectedOption.forEach((op) => {
           this.entree += parseFloat(op.price)
       });
@@ -347,13 +337,12 @@ export default {
     //Prepares items for cart
    toCart(){
       this.overallTotal += parseFloat(this.entreeTotal)
-      //this.overallTotal = parseFloat(String(this.overallTotal).replace(/^0/, '')).toFixed(2)
-      this.entree=0
-      //this.entreeTotal=0
+      //if the quantity is zero, nothing added to the cart
       if(this.quantity == 0){
         this.e1=4
         return;
       }
+      //create a new cart item, assign values based on entree
       let cartItem = {
         name: '',
         id: 0,
@@ -369,6 +358,7 @@ export default {
       cartItem.price = this.selectedItem[0].price;
       cartItem.quant = this.quantity;
       this.e1 = 4
+      //add to the cart
       this.cart.push(cartItem)
       this.cart.push('')
       console.log(cartItem)
@@ -384,39 +374,56 @@ export default {
       this.e1 = 1
     },
 
+    //undo the addition of the cart, takes the user back to quanitity page
     backCart(){
-      this.overallTotal -= this.entreeTotal
-      this.entreeTotal = 0
-      this.cart.pop();
-      this.cart.pop().quant;
-      this.getEntreePrice()
-      this.e1=3
-      console.log(this.cart)
+      console.log("Quantity: ",this.quantity)
+      if(this.quantity == 0){
+        //if the previous quantity was zero, take the user back
+        this.e1 = 3
+        this.quantity = 1
+        this.entreeTotal = this.entree + this.quantity
+      }
+      else {
+        //remove the item and options from the cart
+        this.overallTotal -= this.entreeTotal
+        this.entreeTotal = 0
+        this.cart.pop();
+        this.cart.pop().quant;
+        this.getEntreePrice()
+        this.e1=3
+        console.log(this.cart)
+      }
+      
     },
 
-    logIt(i){
+    //delete item and corresponding options from cart
+    deleteFromCart(i){
       console.log("clciked", i)
       const c = confirm('Are you sure you want to delete this item?');
       if(c == false){
         return;
       }
+      //update price
       this.overallTotal -= parseFloat(this.cart[i].price*this.cart[i].quant).toFixed(2)
       this.cart[i].opt.forEach((op) => {
         this.overallTotal -= parseFloat(op.price*this.cart[i].quant).toFixed(2)
       })
       this.cart.splice(i, 2);
-      this.overallTotal = (this.overallTotal).tofixed(2)
+      this.overallTotal = (this.overallTotal).toFixed(2)
     },
 
+    //checkout
     checkout(){
       this.newOrder()
-      //this.addOrderItems()
+      this.$store.commit("orderPlaced", "true")
     },
 
+    //create new order
     newOrder(){
       const urladdOrder = "http://localhost:8080/order/add"; // site that doesn’t send Access-Control-*
       const data = new URLSearchParams();
       data.append('userId', this.$store.state.id);
+      //fetch post method to add order to database
       fetch(urladdOrder, {
       method: 'post',
       body: data,
@@ -424,27 +431,33 @@ export default {
       .then(result => {
         this.order = JSON.parse(result)
         console.log(this.order.id)
+        //store the id of the order
         this.$store.commit('handleOrderId', JSON.stringify(this.order.id))
         console.log(this.$store.state.orderId)
         this.orderId = parseInt(this.$store.state.orderId)
+        //call for the items in the order to be added
         this.addOrderItems()
       })
 
       .catch(() => console.log("Can’t access " + urladdOrder + " response. Blocked by browser?")) 
     },
 
+    //add items in the order to database
     addOrderItems(){
       const urladdOrderItem = "http://localhost:8080/order/items/add"; // site that doesn’t send Access-Control-*
       this.cart.forEach((item) => {
         if(!item){
           return;
         }
+        //call for each option in the item to be added
         this.addOrderOption(item.opt, this.orderId, item.quant)
         const data = new URLSearchParams();
+        //parse through array and add each item to body
         data.append('orderId', this.orderId);
         data.append('menuId', String(item.id));
         data.append('quantity',item.quant);
         data.append('price',item.price);
+        //fetch post method to add item to database
         fetch(urladdOrderItem, {
         method: 'post',
         body: data,
@@ -456,19 +469,24 @@ export default {
      
     },
 
+    //add item options to database
     addOrderOption(opt, orderId, quantity){
       const urladdOrderOption = "http://localhost:8080/order/options/add"; // site that doesn’t send Access-Control-*
       opt.forEach((op) => {
+        //pasrse through array and add each option to body data
         const data = new URLSearchParams();
         data.append('orderId', orderId);
         data.append('menuOpId', String(op.id));
         data.append('quantity',quantity);
         data.append('price',op.price);
+        //fetch post method to add item options to database
         fetch(urladdOrderOption, {
         method: 'post',
         body: data,
         }).then((response) => { 
         console.log(response)
+        //push user to contact page
+        this.$router.push('/contact')
         })
         .catch(() => console.log("Can’t access " + urladdOrderOption + " response. Blocked by browser?"))
       })

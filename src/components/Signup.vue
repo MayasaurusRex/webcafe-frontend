@@ -45,7 +45,7 @@
         </v-row>
         <div class="text-xs-center">
           <v-btn class="mr-4" @click="clear">clear</v-btn>
-          <v-btn class="mr-4" @click="submit">submit</v-btn>
+          <v-btn class="mr-4" @click="addCust">submit</v-btn>
           <div v-if="visible">
             <v-btn class="mr-4" @click="show">show cust</v-btn>
           </div>
@@ -69,9 +69,13 @@
 import router from "../router";
 export default {
   name: "Signup",
+  
+  //when page is loaded, role is designated
   created() {
     this.visible = this.$store.state.role == "ROLE_ADMIN"
   },
+
+  //data to be returned/used
   data() {
     return {
       valid: false,
@@ -113,24 +117,26 @@ export default {
   },
 
   methods: {
-    submit() {
+
+    //add customer to database
+    addCust() {
       if (this.$data.valid) {
         const urladd = "http://localhost:8080/users/add"; // site that doesn’t send Access-Control-*
-
-        //ADD CUST
         const data = new URLSearchParams();
+        //add customer params to body data
         data.append("username", this.username);
         data.append("password", this.password);
         data.append("email", this.email);
         data.append("phone", this.phone);
-
+        //fetch post method to add customer
         fetch(urladd, {
           method: "post",
           body: data,
         })
           .then((response) => {
             console.log(response);
-            router.push("/home")
+            //push customer to login screen
+            router.push("/")
           })
           .catch(() =>
             console.log(
@@ -138,51 +144,22 @@ export default {
             )
           );
       }
-
-      //this.$refs.observer.validate().then((asf)=> {
-
-      /* const urladd = "http://localhost:8080/users/add"; // site that doesn’t send Access-Control-*
-      const urlall = "http://localhost:8080/users/all";
-
-      //ADD CUST
-      const data = new URLSearchParams();
-     data.append('name', this.name);
-     data.append('email', this.email);
-     data.append('phone', this.phone);
-
-    fetch(urladd, {
-      method: 'post',
-      body: data,
-    }).then(response => console.log(response))
-
-      .catch(() => console.log("Can’t access " + urladd + " response. Blocked by browser?"))
-
-      //DISPLAY CUST
-      fetch(urlall,{
-        headers: {
-
-        },
-      })
-        .then(response => response.json())
-        .then(data => this.users = data)
-        .catch(err => console.log(err));  */
-
-      //});
     },
 
+    //get customers from database to display
     show() {
       //DISPLAY CUST
       const urlall = "http://localhost:8080/users/all";
+      //fetch method to get users
       fetch(urlall, {
         headers: {},
       })
         .then((response) => response.json())
         .then((data) => (this.users = data))
         .catch((err) => console.log(err));
-
-      //router.push("login");
     },
 
+    //clears the form
     clear() {
       this.username = "";
       this.email = "";

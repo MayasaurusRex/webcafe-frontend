@@ -12,6 +12,7 @@ export default {
   components: {
     Contact
   },
+  //when data is loaded, dark theme is used
   created() {
     this.$vuetify.theme.dark = true;
   }

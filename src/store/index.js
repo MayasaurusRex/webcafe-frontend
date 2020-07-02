@@ -12,7 +12,8 @@ export default new Vuex.Store({
     canOrder: false,
     canEdit: false,
     id: '',
-    orderId: ''
+    orderId: '',
+    orderSuccess: 'false'
   },
   mutations: {
     addItems (state, items) {
@@ -41,6 +42,9 @@ export default new Vuex.Store({
     },
     handleOrderId (state, orderId) {
       state.orderId = orderId
+    },
+    orderPlaced (state, success) {
+      state.orderSuccess = success
     }
     
   },

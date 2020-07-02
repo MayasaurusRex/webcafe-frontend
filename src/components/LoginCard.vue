@@ -6,7 +6,7 @@
     <v-card-text>
       <v-form>
         <v-text-field
-          v-model="email"
+          v-model="username"
           label="Username"
           prepend-icon="person"
           type="text"
@@ -38,15 +38,18 @@ import router from "/Users/mhegde/Documents/Summer2020/VueProjects/cafegoogoo/sr
 export default {
   data() {
     return {
-      pass: "123456",
-      email: "admin",
+      pass: "",
+      username: "",
       role: "",
     };
   },
 
   methods: {
+
+    //submits form with get method to check authoorization for user
     submit() {
-      let enc = "Basic " + btoa(this.email + ":" + this.pass);
+      //headers sent to backend 
+      let enc = "Basic " + btoa(this.username + ":" + this.pass);
       var myHeaders = new Headers();
       myHeaders.append("Authorization", enc);
       var requestOptions = {
@@ -54,74 +57,84 @@ export default {
         headers: myHeaders,
         redirect: "follow",
       };
+      //fetch method to backend auth
       fetch("http://localhost:8080/menu/all", requestOptions)
         .then((response) => response.text())
         .then((result) => {
-          //console.log("after signin: " + result);
+          //if authorized, loads menu items into stored value
           this.$store.commit("addItems", JSON.parse(result));
-          this.showop()
+          //calls for menu options to be loaded/stored, pushes user to home page
+          this.loadOptions()
           router.push("/home")
         })
+        //call to determine the role of the user
         .then(this.findUserRole())
         .catch((error) => {
           console.log("error", error);
         });
     },
 
-    showop() {
-      //DISPLAY CUST
+    //loads menu options and submits to store
+    loadOptions() {
       const urlall = "http://localhost:8080/option/all";
+      //fetch method to load menu options
       fetch(urlall, {
-        //headers: {
-        //},
       })
         .then((response) => response.text())
         .then((result) => {
-          //console.log("ops: " + result);
+          //commit menu options to store
           this.$store.commit("addOptions", JSON.parse(result));
           this.ops = this.$store.state.ops;
         })
         .catch((err) => console.log(err));
     },
 
+    //determines user role
     findUserRole() {
+      //url header
       const urlLogin =
         "http://localhost:8080/role?username=" +
-        this.email +
+        this.username +
         "&password=" +
-        this.pass; // site that doesn’t send Access-Control-*
+        this.pass; 
+      //fetch method to get user role
       fetch(urlLogin, {
         headers: {},
-        //body: body,
       })
         .then((response) => response.text())
         .then((result) => {
+          //calls method to handle the role which is returned
           this.handleRole(result)
         })
         .catch((error) => console.log("error", error));
     },
 
+    //handles and stores user role and id
     handleRole(role) {
-      
+      //determines the role (r) and userId of the user
       const slice = role.indexOf(',')
       const r = role.substring(0,slice)
-      const n = role.substring(slice+1)
+      const userId = role.substring(slice+1)
       console.log("role: ",r)
-      console.log("id: ",n)
+      console.log("id: ",userId)
+      //if the user does not exist, 'bad credentials' is displayed
       if(role == "anon") {
       if(confirm("Bad Credentials. Try Again?")){
           this.clear()
-      } else(router.push("/home"))
+      } else(this.clear())
       }
+      //commits the role and userId to the store
       this.$store.commit('handleRole', r)
-      this.$store.commit('handleId', n)
+      this.$store.commit('handleId', userId)
   },
 
+  //clears the sign in form
   clear(){
     this.pass = ''
-    this.email = ''
+    this.username = ''
   },
 
+  //pushes user to the signup page
   signup() {
     router.push("/signup")
   }

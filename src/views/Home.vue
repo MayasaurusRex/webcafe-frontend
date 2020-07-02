@@ -15,6 +15,7 @@ export default {
   components: {
     Welcome
   },
+  //when data is loaded, dark theme is used
   created() {
     this.$vuetify.theme.dark = true;
   }

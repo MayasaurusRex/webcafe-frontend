@@ -6,7 +6,7 @@
       v-model="drawer"
       app
       clipped
-    >
+    > 
       <v-list dense>
         <v-list-item
           link
@@ -39,6 +39,11 @@
         <span>Cafe</span>
         <span class="font-weight-light"> Googoo</span>
       </v-toolbar-title>
+      <v-spacer />
+      <v-btn @click="logout">
+        logout
+        <v-icon> mdi-logout </v-icon>
+      </v-btn>
     </v-app-bar>
 
     <v-content>
@@ -55,7 +60,7 @@
 
 <script>
 // import Login from "@/components/Login";
-
+import router from "/Users/mhegde/Documents/Summer2020/VueProjects/cafegoogoo/src/router";
 export default {
   // components: {
   //   Login,
@@ -77,5 +82,18 @@ export default {
   created() {
     this.$vuetify.theme.dark = true;
   },
+  methods: {
+    logout() {
+    this.$store.state.items = [],
+    this.$store.state.ops= [],
+    this.$store.state.role= '',
+    this.$store.state.canOrder= false,
+    this.$store.state.canEdit= false,
+    this.$store.state.id= '',
+    this.$store.state.orderId= '',
+    this.$store.state.orderSuccess= 'false'
+    router.push('/')
+    }
+  }
 };
 </script>

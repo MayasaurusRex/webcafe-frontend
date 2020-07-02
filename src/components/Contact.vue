@@ -47,18 +47,48 @@
       </v-btn>
     </v-card-actions>
   </v-card>
+  <div class="text-center" v-if="success">
+    <v-snackbar
+      v-model="snackbar"
+      :timeout="timeout"
+      color="success"
+    >
+      Order Successfully Placed.
+    </v-snackbar>
+  </div>
   </div>
 </template>
 
 <script>
 export default {
   name: 'Contact',
+  created() {
+    this.success = this.$store.state.orderSuccess;
+    console.log("success: ", this.success)
+  },
   data(){
     return {
       email: 'cafegoogoo@gmail.com',
       msg: 'Get in touch with us!',
       rating: 4.5,
+      success: '',
+      timeout: 3000,
+      snackbar: false
     }
   },
+
+  mounted(){
+    this.checkOrderSuccess()
+  },
+
+  methods: {
+
+    //displays order success banner after user places order 
+    checkOrderSuccess() {
+      if (this.success == "true"){
+        this.snackbar = true
+      }
+    }
+  }
 }
 </script>

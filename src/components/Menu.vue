@@ -24,7 +24,7 @@
             </template>
             <v-card>
               <v-card-title>
-                <span class="headline">{{ formTitle }}</span>
+                <span class="headline">{{ formItemTitle }}</span>
               </v-card-title>
 
               <v-card-text>
@@ -61,7 +61,7 @@
             </template>
             <v-card>
               <v-card-title>
-                <span class="headline">{{ formTitle2 }}</span>
+                <span class="headline">{{ formOptionTitle }}</span>
               </v-card-title>
 
               <v-card-text>
@@ -111,7 +111,7 @@
                 <v-btn color="blue darken-1" text @click="closeop"
                   >Cancel</v-btn
                 >
-                <v-btn color="blue darken-1" text @click="saveop">Submit</v-btn>
+                <v-btn color="blue darken-1" text @click="saveMenuOption">Submit</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -161,7 +161,7 @@
       </template>
 
       <template v-slot:no-data>
-        <v-btn color="primary" @click="show">Reset</v-btn>
+        <v-btn color="primary" @click="loadMenuItems">Reset</v-btn>
       </template>
     </v-data-table>
 
@@ -194,10 +194,13 @@
 
 <script>
 export default {
+  //when page is loaded, role is designated
   created() {
     this.visible = this.$store.state.role == "ROLE_ADMIN";
     this.anon = this.$store.state.role == "anon";
   },
+
+  //data returned
   data: () => ({
     editable: true,
     anon:'',
@@ -242,16 +245,20 @@ export default {
   }),
 
   computed: {
-    formTitle() {
+    //determines form title for menu item to be edited or created
+    formItemTitle() {
       console.log(this.editedIndex);
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
     },
-    formTitle2() {
+
+    //determines the form title for menu option to be edited or created
+    formOptionTitle() {
       console.log(this.editedOpIndex);
       return this.editedOpIndex === -1 ? "New Option" : "Edit Option";
     },
   },
 
+  //recurring data checks
   watch: {
     dialog(val) {
       val || this.close();
@@ -262,18 +269,21 @@ export default {
     },
 
     created() {
-      this.show();
+      this.loadMenuItems();
     },
   },
 
+  //when view is loaded, calls methods
   mounted() {
-    this.show();
-    this.showop();
+    this.loadMenuItems();
+    this.loadMenuOptions();
     this.makeItemsList();
   },
 
   methods: {
-    /////////////////////ITEMS////////////////////
+    
+    /////////////////////MENU ITEMS////////////////////
+    
     //Add item
     submit() {
       //ADD ITEM
@@ -282,13 +292,14 @@ export default {
       const data = new URLSearchParams();
       data.append("name", this.editedItem.name);
       data.append("price", this.editedItem.price);
+      //fetch post method to add menu item
       fetch(urladd, {
         method: "post",
         body: data,
       })
         .then((response) => {
           console.log(response);
-          this.show();
+          this.loadMenuItems();
           this.close();
         })
         .catch(() =>
@@ -298,26 +309,13 @@ export default {
         );
     },
 
-    //Get items
-    show() {
-      //DISPLAY ITEMS
-      // const urlall = "http://localhost:8080/menu/all";
-      // fetch(urlall,{
-      // })
-      //   .then(response => response.json())
-      //   .then(data => this.items = data)
-      //   .then((response) => {
-      //   console.log(response)
-      //   this.showop();
-      // })
-      //   .catch(err => console.log(err));
+    //Get and display items
+    loadMenuItems() {
       this.items = this.$store.state.items;
-      //this.showop()
     },
 
-    //Clear item form
+    //Clear new item form
     clear() {
-      //
       this.name = "";
       this.price = "";
     },
@@ -331,13 +329,15 @@ export default {
       if (c == false) {
         return;
       }
+      //fetch delete method to delete item
       fetch(urldelete, {
         method: "delete",
       })
         .then((response) => {
           response.json();
-          this.show();
-          this.showop();
+          //update view
+          this.loadMenuItems();
+          this.loadMenuOptions();
         })
         .catch((err) => console.log(err));
     },
@@ -361,8 +361,10 @@ export default {
 
     //Decide to update or save item
     save() {
+      //for edited items
       if (this.editedIndex > -1) {
         this.update(this.editedItem);
+      //for new items
       } else {
         this.submit();
       }
@@ -372,6 +374,7 @@ export default {
     update(editedItem) {
       //UPDATE ITEM
       const urlupdate = "http://localhost:8080/menu" + "/" + this.editedItem.id;
+      //fetch put method to update items
       fetch(urlupdate, {
         method: "put",
         headers: new Headers({
@@ -382,23 +385,26 @@ export default {
       })
         .then((response) => {
           response.json();
+          //update view
           this.close();
-          this.show();
-          this.showop();
+          this.loadMenuItems();
+          this.loadMenuOptions();
         })
         .catch((err) => console.log(err));
     },
 
     ////////////////////OPTIONS//////////////////////////
+    
     //Add Option
-    submitop() {
+    submitOption() {
       console.log(this.menuid, this.option, this.priceop);
       const urladd = "http://localhost:8080/option/add"; // site that doesn’t send Access-Control-*
-      //ADD OP
+      //ADD OPTION
       const data = new URLSearchParams();
       data.append("menuid", this.editedOption.menuid);
       data.append("name", this.editedOption.name);
       data.append("price", this.editedOption.price);
+      //fetch post method to add menu option
       fetch(urladd, {
         method: "post",
         body: data,
@@ -408,9 +414,9 @@ export default {
           if (response.status === 500) {
             alert("Bad request bruv");
           }
-
-          this.showop();
-          this.show();
+          //update view
+          this.loadMenuOptions();
+          this.loadMenuItems();
           this.clearop();
           this.closeop();
         })
@@ -422,23 +428,8 @@ export default {
     },
 
     //Display options
-    showop() {
-      //DISPLAY CUST
-      // const urlall = "http://localhost:8080/option/all";
-      // fetch(urlall, {
-      //   //headers: {
-      //   //},
-      // })
-      //   .then((response) => response.text())
-      //   .then((result) => {
-      //     //console.log("ops: " + result);
-      //     this.$store.commit("addOptions", JSON.parse(result));
-      //     this.ops = this.$store.state.ops;
-      //   })
-      //   .catch((err) => console.log(err));
+    loadMenuOptions() {
       this.ops = this.$store.state.ops
-
-      //router.push("login");
     },
 
     //Clear Option Form
@@ -452,17 +443,20 @@ export default {
     deleteOp(id) {
       const urldelete = "http://localhost:8080/option" + "/" + id;
       console.log(id);
+      //confirm user wants to delete menu option
       const c = confirm("Are you sure you want to delete this item?");
       if (c == false) {
         return;
       }
+      //fetch delete method to delete menu option
       fetch(urldelete, {
         method: "delete",
       })
         .then((response) => {
           response.json();
-          this.show();
-          this.showop();
+          //update view
+          this.loadMenuItems();
+          this.loadMenuOptions();
         })
         .catch((err) => console.log(err));
     },
@@ -487,7 +481,7 @@ export default {
     editop(op) {
       this.editedOpIndex = 0;
       this.editedOption = Object.assign({}, op);
-      //this.title = this.editedItem.menuid.name
+      //for-each loop to determine the options that correspond to each item
       this.items.forEach((item) => {
         if (item.id == this.editedOption.menuid) {
           this.title = item.name;
@@ -499,11 +493,13 @@ export default {
     },
 
     //Decide to either save or update option
-    saveop() {
+    saveMenuOption() {
+      //if updating menu option
       if (this.editedOpIndex > -1) {
         this.updateop(this.editedOption);
+      //if creating new menu option
       } else {
-        this.submitop();
+        this.submitOption();
       }
     },
 
@@ -511,6 +507,7 @@ export default {
     updateop(editedOption) {
       const urlupdate =
         "http://localhost:8080/option" + "/" + this.editedOption.id;
+      //fetch put method to update menu options
       fetch(urlupdate, {
         method: "put",
         headers: new Headers({
@@ -521,13 +518,15 @@ export default {
       })
         .then((response) => {
           response.json();
+          //update view
           this.closeop();
-          this.show();
-          this.showop();
+          this.loadMenuItems();
+          this.loadMenuOptions();
         })
         .catch((err) => console.log(err));
     },
 
+    //add space between each item in the menu items array to create table with spacer
     makeItemsList() {
       this.items.forEach((item) => {
         this.itemsList.push(item);
